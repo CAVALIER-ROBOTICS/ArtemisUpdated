@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.DriveCommands.FieldDriveCommand;
 import frc.robot.commands.DriveCommands.RobotDriveCommand;
+import frc.robot.commands.ShootCommands.HomeHoodCommand;
 import frc.robot.commands.ShootCommands.HoodCommand;
 import frc.robot.commands.ShootCommands.ShootCommand;
 import frc.robot.commands.TurretCommands.AimCommand;
@@ -32,7 +33,8 @@ import frc.robot.commands.TurretCommands.StartTurretCommand;
 import frc.robot.commands.TurretCommands.TurnTurretCommand;
 import frc.robot.subsystems.DriveTrainSubsystems;
 import frc.robot.subsystems.HoodSubsystem;
-import frc.robot.subsystems.HopperSubsystem;
+import frc.robot.subsystems.HopperFloorSubsystem;
+import frc.robot.subsystems.HopperWallSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.KickerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -52,7 +54,8 @@ public class RobotContainer {
 
   DriveTrainSubsystems driveSub = new DriveTrainSubsystems();
   TurretSubsystem turretSub = new TurretSubsystem();;
-  HopperSubsystem hopperSub = new HopperSubsystem();
+  HopperFloorSubsystem floorSub = new HopperFloorSubsystem();
+  HopperWallSubsystem wallSub = new HopperWallSubsystem();
   IntakeSubsystem intakeSub = new IntakeSubsystem();
   ShooterSubsystem shooterSub = new ShooterSubsystem();
   HoodSubsystem hoodSub = new HoodSubsystem();
@@ -76,7 +79,9 @@ public class RobotContainer {
       new StartTurretCommand(turretSub),
       new AimCommand(turretSub)));
 
-    hoodSub.setDefaultCommand(new HoodCommand(hoodSub));
+    hoodSub.setDefaultCommand(new SequentialCommandGroup(
+      new HomeHoodCommand(hoodSub),
+      new HoodCommand(hoodSub)));
 
 
     //passes conditional command into the default command of drive
@@ -107,7 +112,7 @@ public class RobotContainer {
     JoystickButton raiseHood = new JoystickButton(driver, 3);
     JoystickButton lowerHood = new JoystickButton(driver, 1);
     JoystickButton intake = new JoystickButton(driver, 7);
-
+    JoystickButton outake = new JoystickButton(driver, 5);
 
 
     raiseHood.whileActiveContinuous(
@@ -125,14 +130,32 @@ public class RobotContainer {
     intake.whileActiveContinuous(
       new ParallelCommandGroup(
         new StartEndCommand(
-          ()-> intakeSub.setIntakeMotor(0.5), 
+          ()-> intakeSub.setIntakeMotor(0.8), 
           ()-> intakeSub.setIntakeMotor(0),
           intakeSub),
         new StartEndCommand(
-          ()-> hopperSub.setMotors(.5), 
-          ()-> hopperSub.setMotors(0),
-          hopperSub)));
+          ()-> wallSub.setWall(.3), 
+          ()-> wallSub.setWall(0),
+          wallSub)));
 
+          outake.whileActiveContinuous(
+            new ParallelCommandGroup(
+              new StartEndCommand(
+                ()-> intakeSub.setIntakeMotor(-0.8), 
+                ()-> intakeSub.setIntakeMotor(0),
+                intakeSub),
+              new StartEndCommand(
+                ()-> wallSub.setWall(-.3), 
+                ()-> wallSub.setWall(0),
+                wallSub),
+              new StartEndCommand(
+                ()-> floorSub.setFloor(-.3),
+                ()-> floorSub.setFloor(0), 
+                floorSub),
+                new StartEndCommand(
+                ()-> kickSub.setKicker(-.3), 
+                ()-> kickSub.setKicker(0),
+                kickSub)));
     
 
     shoot.whileActiveContinuous(
@@ -141,7 +164,11 @@ public class RobotContainer {
         new StartEndCommand(
         ()-> kickSub.setKicker(.8), 
         ()-> kickSub.setKicker(0.0),
-        kickSub)));
+        kickSub),
+        new StartEndCommand(
+        () -> floorSub.setFloor(.3), 
+        () -> floorSub.setFloor(0),
+        floorSub)));
 
     reset.whenPressed(new InstantCommand(driveSub::zeroGyroscope, driveSub));
 

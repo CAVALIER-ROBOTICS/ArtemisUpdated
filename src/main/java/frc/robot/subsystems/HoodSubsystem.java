@@ -30,7 +30,9 @@ public class HoodSubsystem extends SubsystemBase {
   {
     hoodMotor.set(x);
   }
-
+  public void setEncoder(double x){
+    hoodEnc.setPosition(x);
+  }
   public double getPos()
   {
     return hoodEnc.getPosition();
@@ -39,6 +41,10 @@ public class HoodSubsystem extends SubsystemBase {
   public double getAngle()
   {
     return getPos()*30/41+14;
+  }
+
+  public double getVoltage(){
+    return hoodMotor.getOutputCurrent();
   }
 
   @Override

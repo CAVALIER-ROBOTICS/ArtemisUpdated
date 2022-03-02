@@ -11,21 +11,17 @@ import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-public class HopperSubsystem extends SubsystemBase {
+public class HopperFloorSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
   CANSparkMax hopperFloor = new CANSparkMax(Constants.floorID, MotorType.kBrushless);
-  CANSparkMax hopperWall = new CANSparkMax(Constants.wallID, MotorType.kBrushless);
   
-  public HopperSubsystem() 
+  public HopperFloorSubsystem() 
   {
-    hopperWall.follow(hopperFloor);
     hopperFloor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 65400);
-    hopperWall.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 65300);
     hopperFloor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 65200);
-    hopperWall.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 65100);
   }
 
-  public void setMotors(double x){
+  public void setFloor(double x){
     hopperFloor.set(x);
   }
 
