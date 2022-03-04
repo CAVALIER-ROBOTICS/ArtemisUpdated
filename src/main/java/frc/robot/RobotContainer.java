@@ -48,8 +48,8 @@ import frc.robot.subsystems.TurretSubsystem;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  public static Joystick driver = new Joystick(0);
-  public static Joystick operator = new Joystick(1);
+  public static XboxController driver = new XboxController(0);
+  public static XboxController operator = new XboxController(1);
 
 
   DriveTrainSubsystems driveSub = new DriveTrainSubsystems();
@@ -87,9 +87,9 @@ public class RobotContainer {
     //passes conditional command into the default command of drive
     driveSub.setDefaultCommand(
       new FieldDriveCommand(
-        () -> modifyAxis(driver.getRawAxis(1)) * DriveTrainSubsystems.maxVelocityPerSecond,
-        () -> modifyAxis(driver.getRawAxis(0)) * DriveTrainSubsystems.maxVelocityPerSecond,
-        () -> modifyAxis(driver.getRawAxis(2)) * DriveTrainSubsystems.maxAngularVelocityPerSecond,
+        () -> modifyAxis(driver.getLeftY()) * DriveTrainSubsystems.maxVelocityPerSecond,
+        () -> modifyAxis(driver.getLeftX()) * DriveTrainSubsystems.maxVelocityPerSecond,
+        () -> modifyAxis(driver.getRightX()) * DriveTrainSubsystems.maxAngularVelocityPerSecond,
         driveSub
       ));
         
@@ -106,13 +106,17 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     //Driver
-    JoystickButton reset = new JoystickButton(driver, 4);
-    JoystickButton changeDrive = new JoystickButton(driver,2);
-    JoystickButton shoot = new JoystickButton(driver, 8);
     JoystickButton raiseHood = new JoystickButton(driver, 3);
     JoystickButton lowerHood = new JoystickButton(driver, 1);
     JoystickButton intake = new JoystickButton(driver, 7);
     JoystickButton outake = new JoystickButton(driver, 5);
+
+    JoystickButton reset = new JoystickButton(driver, 4);
+    JoystickButton changeDrive = new JoystickButton(driver,1);
+    JoystickButton shoot = new JoystickButton(operator, 6);
+    JoystickButton indexer = new JoystickButton(operator, 7);
+    //JoystickButton raiseHood = new JoystickButton(driver, 3);
+    //JoystickButton lowerHood = new JoystickButton(driver, 1);
 
 
     raiseHood.whileActiveContinuous(
@@ -127,58 +131,60 @@ public class RobotContainer {
         ()-> hoodSub.setHood(0),
         hoodSub));
 
-    intake.whileActiveContinuous(
-      new ParallelCommandGroup(
-        new StartEndCommand(
-          ()-> intakeSub.setIntakeMotor(0.8), 
-          ()-> intakeSub.setIntakeMotor(0),
-          intakeSub),
-        new StartEndCommand(
-          ()-> wallSub.setWall(.3), 
-          ()-> wallSub.setWall(0),
-          wallSub)));
+        intake.whileActiveContinuous(
+          new ParallelCommandGroup(
+            new StartEndCommand(
+              ()-> intakeSub.setIntakeMotor(1), 
+              ()-> intakeSub.setIntakeMotor(0),
+              intakeSub),
+            new StartEndCommand(
+              ()-> wallSub.setWall(.3), 
+              ()-> wallSub.setWall(0),
+              wallSub)));
+  
 
-          outake.whileActiveContinuous(
-            new ParallelCommandGroup(
-              new StartEndCommand(
-                ()-> intakeSub.setIntakeMotor(-0.8), 
-                ()-> intakeSub.setIntakeMotor(0),
-                intakeSub),
-              new StartEndCommand(
-                ()-> wallSub.setWall(-.3), 
-                ()-> wallSub.setWall(0),
-                wallSub),
-              new StartEndCommand(
-                ()-> floorSub.setFloor(-.3),
-                ()-> floorSub.setFloor(0), 
-                floorSub),
-                new StartEndCommand(
-                ()-> kickSub.setKicker(-.3), 
-                ()-> kickSub.setKicker(0),
-                kickSub)));
+              
+              outake.whileActiveContinuous(
+                new ParallelCommandGroup(
+                  new StartEndCommand(
+                    ()-> intakeSub.setIntakeMotor(-1), 
+                    ()-> intakeSub.setIntakeMotor(0),
+                    intakeSub),
+                  new StartEndCommand(
+                    ()-> wallSub.setWall(-.3), 
+                    ()-> wallSub.setWall(0),
+                    wallSub),
+                  new StartEndCommand(
+                    ()-> floorSub.setFloor(-.3),
+                    ()-> floorSub.setFloor(0), 
+                    floorSub),
+                    new StartEndCommand(
+                    ()-> kickSub.setKicker(-.3), 
+                    ()-> kickSub.setKicker(0),
+                    kickSub)));
+        
     
-
-    shoot.whileActiveContinuous(
-      new ParallelCommandGroup(
-        new ShootCommand(shooterSub),
-        new StartEndCommand(
-        ()-> kickSub.setKicker(.8), 
-        ()-> kickSub.setKicker(0.0),
-        kickSub),
-        new StartEndCommand(
-        () -> floorSub.setFloor(.3), 
-        () -> floorSub.setFloor(0),
-        floorSub)));
-
-    reset.whenPressed(new InstantCommand(driveSub::zeroGyroscope, driveSub));
-
-    changeDrive.toggleWhenPressed(
-      new RobotDriveCommand(
-      () -> modifyAxis(driver.getRawAxis(1)) * DriveTrainSubsystems.maxVelocityPerSecond,
-      () -> modifyAxis(driver.getRawAxis(0)) * DriveTrainSubsystems.maxVelocityPerSecond,
-      () -> modifyAxis(driver.getRawAxis(2)) * DriveTrainSubsystems.maxAngularVelocityPerSecond,
-      driveSub
-    ));
+        shoot.whileActiveContinuous(new ShootCommand(shooterSub));
+    
+          indexer.whileActiveContinuous(new ParallelCommandGroup(
+            new StartEndCommand(
+              ()-> kickSub.setKicker(.8), 
+              ()-> kickSub.setKicker(0.0),
+              kickSub),
+              new StartEndCommand(
+              () -> floorSub.setFloor(.3), 
+              () -> floorSub.setFloor(0),
+              floorSub)));
+    
+        reset.whenPressed(new InstantCommand(driveSub::zeroGyroscope, driveSub));
+    
+        changeDrive.toggleWhenPressed(
+          new RobotDriveCommand(
+          () -> modifyAxis(driver.getRawAxis(1)) * DriveTrainSubsystems.maxVelocityPerSecond,
+          () -> modifyAxis(driver.getRawAxis(0)) * DriveTrainSubsystems.maxVelocityPerSecond,
+          () -> modifyAxis(driver.getRawAxis(4)) * DriveTrainSubsystems.maxAngularVelocityPerSecond,
+          driveSub
+        ));
   }
 
   /**

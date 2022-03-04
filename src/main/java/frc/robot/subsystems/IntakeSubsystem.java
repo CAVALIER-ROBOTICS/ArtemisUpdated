@@ -23,8 +23,8 @@ public class IntakeSubsystem extends SubsystemBase {
   {
     raiseEnc.setPosition(0);
     intakeMotor.setInverted(true);
-    intakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 65000);
-    intakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 64900);
+    // intakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 65000);
+    // intakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 64900);
     raiseMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 64800);
   }
 

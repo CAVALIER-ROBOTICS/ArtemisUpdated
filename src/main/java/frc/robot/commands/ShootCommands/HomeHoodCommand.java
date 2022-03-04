@@ -39,7 +39,7 @@ public class HomeHoodCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if(hoodSub.getVoltage()<50){
+    if(hoodSub.getVoltage()<25){
       return false;
     }
     else{
